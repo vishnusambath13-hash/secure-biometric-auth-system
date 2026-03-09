@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAV Command System — Authentication</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hud_style.css') }}" />
+  <style>
+    /* Extra decorative tick marks around the login box */
+    .corner-tl, .corner-tr, .corner-bl, .corner-br {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-color: rgba(0,245,255,0.5);
+      border-style: solid;
+    }
+    .corner-tl { top: 2px;  left: 2px;  border-width: 1px 0 0 1px; }
+    .corner-tr { top: 2px;  right: 2px; border-width: 1px 1px 0 0; }
+    .corner-bl { bottom: 2px; left: 2px;  border-width: 0 0 1px 1px; }
+    .corner-br { bottom: 2px; right: 2px; border-width: 0 1px 1px 0; }
+  </style>
+</head>
+<body class="login-body">
+
+  <!-- Scanning line animation -->
+  <div class="login-scan-line" aria-hidden="true"></div>
+
+  <div class="login-wrapper" role="main">
+    <!-- Decorative corner marks -->
+    <div class="corner-tl" aria-hidden="true"></div>
+    <div class="corner-tr" aria-hidden="true"></div>
+    <div class="corner-bl" aria-hidden="true"></div>
+    <div class="corner-br" aria-hidden="true"></div>
+
+    <!-- Logo / Title -->
+    <div class="login-logo">
+      <span class="system-id">SYS-ID: UAV-CMD-7749 · CLEARANCE REQUIRED</span>
+      <h1>Secure UAV<br>Command Console</h1>
+    </div>
+
+    <div class="login-divider" aria-hidden="true"></div>
+
+    <!-- Auth form -->
+    <form method="POST" action="/login" autocomplete="off" novalidate>
+      <div class="field-group">
+        <label class="field-label" for="username">Operator ID</label>
+        <input
+          class="hud-input"
+          type="text"
+          id="username"
+          name="username"
+          placeholder="Enter operator ID"
+          required
+          autocomplete="username"
+          spellcheck="false"
+        />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="password">Authorization Code</label>
+        <input
+          class="hud-input"
+          type="password"
+          id="password"
+          name="password"
+          placeholder="••••••••••••"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+
+      {% if error %}
+      <div class="login-error" role="alert">⚠ {{ error }}</div>
+      {% endif %}
+
+      <button class="login-btn" type="submit">Authenticate</button>
+    </form>
+
+    <div class="login-footer">
+      <span>BIOMETRIC VERIFICATION — PENDING INTEGRATION</span><br>
+      <span>ALL ACCESS ATTEMPTS ARE LOGGED AND MONITORED</span>
+    </div>
+  </div>
+
+</body>
+</html>

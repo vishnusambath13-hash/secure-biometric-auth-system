@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAV Command Console — ACTIVE SESSION</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hud_style.css') }}" />
+</head>
+<body class="dashboard-body">
+
+  <!-- ======================================================================
+       HEADER
+       ====================================================================== -->
+  <header class="hud-header">
+    <div class="header-title">Secure UAV Command Console</div>
+
+    <div class="header-meta">
+      <span id="hud-clock" class="header-clock">----</span>
+      <div class="header-status-dot" title="System Online" aria-label="System Online"></div>
+      <span class="header-user">OP: {{ username | upper }}</span>
+
+      <!-- Logout -->
+      <form method="POST" action="/logout" style="margin:0;">
+        <button class="logout-btn" type="submit">Disconnect</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       MAIN GRID
+       ====================================================================== -->
+  <main class="hud-main">
+
+    <!-- ==================================================================
+         LEFT — Radar Display
+         ================================================================== -->
+    <section class="hud-panel radar-panel" aria-label="Radar Display">
+      <div class="panel-header">
+        <div class="panel-header-dot" aria-hidden="true"></div>
+        <span class="panel-header-label">Tactical Radar</span>
+      </div>
+
+      <div class="radar-viewport">
+        <div class="radar-container" role="img" aria-label="Rotating radar sweep">
+          <!-- Static rings -->
+          <div class="radar-ring" aria-hidden="true"></div>
+          <div class="radar-ring" aria-hidden="true"></div>
+          <div class="radar-ring" aria-hidden="true"></div>
+          <div class="radar-ring" aria-hidden="true"></div>
+
+          <!-- Cross-hair -->
+          <div class="radar-cross" aria-hidden="true"></div>
+
+          <!-- Rotating HUD decorative rings -->
+          <div class="hud-ring-outer" aria-hidden="true"></div>
+          <div class="hud-ring-inner" aria-hidden="true"></div>
+
+          <!-- Radar sweep -->
+          <div class="radar-sweep" aria-hidden="true"></div>
+
+          <!-- Static blips (JavaScript adds dynamic ones) -->
+          <div class="radar-blip" style="top:35%;left:62%;" aria-hidden="true"></div>
+          <div class="radar-blip" style="top:60%;left:28%;animation-delay:1.4s;" aria-hidden="true"></div>
+          <div class="radar-blip" style="top:22%;left:48%;animation-delay:0.8s;" aria-hidden="true"></div>
+        </div>
+
+        <div class="radar-coords" id="radar-coords">
+          37.7749°N · 122.4194°W
+        </div>
+      </div>
+
+      <!-- Radar metadata -->
+      <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-family:var(--font-mono);font-size:9px;color:var(--hud-text-dim);letter-spacing:2px;">RANGE</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--hud-cyan);">25 km</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-family:var(--font-mono);font-size:9px;color:var(--hud-text-dim);letter-spacing:2px;">CONTACTS</span>
+          <span id="radar-contacts" style="font-family:var(--font-mono);font-size:11px;color:var(--hud-green);">3</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-family:var(--font-mono);font-size:9px;color:var(--hud-text-dim);letter-spacing:2px;">MODE</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--hud-text);">ACTIVE SCAN</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================================================================
+         CENTER — Command Console
+         ================================================================== -->
+    <section class="hud-panel command-panel" aria-label="Command Console">
+      <div class="panel-header">
+        <div class="panel-header-dot" aria-hidden="true"></div>
+        <span class="panel-header-label">Command Authorization</span>
+      </div>
+
+      <div class="command-grid">
+
+        <button class="cmd-btn" data-command="start_recon" aria-label="Start Recon mission">
+          <span class="cmd-icon">🔍</span>
+          <span>Start Recon</span>
+          <span class="cmd-key">RSA-SIGNED</span>
+        </button>
+
+        <button class="cmd-btn" data-command="deploy_drone" aria-label="Deploy Drone">
+          <span class="cmd-icon">🚁</span>
+          <span>Deploy Drone</span>
+          <span class="cmd-key">RSA-SIGNED</span>
+        </button>
+
+        <button class="cmd-btn" data-command="return_base" aria-label="Return to Base">
+          <span class="cmd-icon">🏠</span>
+          <span>Return Base</span>
+          <span class="cmd-key">RSA-SIGNED</span>
+        </button>
+
+        <button class="cmd-btn" data-command="system_status" aria-label="System Status">
+          <span class="cmd-icon">📡</span>
+          <span>System Status</span>
+          <span class="cmd-key">RSA-SIGNED</span>
+        </button>
+
+        <button class="cmd-btn abort" data-command="abort_mission" aria-label="Abort Mission — Emergency Stop">
+          <span class="cmd-icon">⚠</span>
+          <span>Abort Mission</span>
+          <span class="cmd-key">PRIORITY-1</span>
+        </button>
+
+        <!-- ── Gesture Control Divider ─────────────────────────────────── -->
+        <div class="gesture-divider" aria-hidden="true">
+          <span class="gesture-divider-line"></span>
+          <span class="gesture-divider-label">BIOMETRIC INPUT</span>
+          <span class="gesture-divider-line"></span>
+        </div>
+
+        <!-- ── Enable Gesture Control Button ──────────────────────────── -->
+        <button
+          class="cmd-btn gesture-enable-btn"
+          id="gesture-trigger"
+          aria-label="Enable gesture-based command input via webcam"
+          aria-pressed="false"
+        >
+          <!-- Animated hand icon -->
+          <span class="cmd-icon gesture-icon" aria-hidden="true">✋</span>
+
+          <span class="gesture-btn-body">
+            <span class="gesture-btn-title">Enable Gesture Control</span>
+            <span class="gesture-btn-sub" id="gesture-btn-sub">Camera · MediaPipe · RSA-Signed</span>
+          </span>
+
+          <!-- Live state indicator dot -->
+          <span class="gesture-state-dot" id="gesture-state-dot" aria-hidden="true"></span>
+        </button>
+
+        <!-- ── Gesture Status Banner (hidden until gesture fires) ──────── -->
+        <div
+          id="gesture-status-banner"
+          class="gesture-status-banner"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          hidden
+        >
+          <span class="gesture-status-icon" aria-hidden="true">✋</span>
+          <span class="gesture-status-text" id="gesture-status-text"></span>
+        </div>
+
+        <!-- Command result feedback -->
+        <div id="cmd-feedback" role="status" aria-live="polite">
+          CONSOLE READY — SELECT COMMAND TO AUTHORIZE
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ==================================================================
+         RIGHT — Telemetry
+         ================================================================== -->
+    <aside class="hud-panel telemetry-panel" aria-label="Telemetry Data">
+      <div class="panel-header">
+        <div class="panel-header-dot" aria-hidden="true"></div>
+        <span class="panel-header-label">Telemetry</span>
+      </div>
+
+      <div class="telemetry-items">
+
+        <!-- Battery -->
+        <div class="telem-item">
+          <span class="telem-label">Battery</span>
+          <div class="telem-bar-wrap" role="progressbar" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100">
+            <div class="telem-bar" id="bar-battery" style="width:87%"></div>
+          </div>
+          <span class="telem-value"><span id="val-battery">87</span><span class="telem-unit">%</span></span>
+        </div>
+
+        <div class="telem-divider"></div>
+
+        <!-- Signal -->
+        <div class="telem-item">
+          <span class="telem-label">Signal Strength</span>
+          <div class="telem-bar-wrap" role="progressbar" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100">
+            <div class="telem-bar" id="bar-signal" style="width:94%"></div>
+          </div>
+          <span class="telem-value"><span id="val-signal">94</span><span class="telem-unit">%</span></span>
+        </div>
+
+        <div class="telem-divider"></div>
+
+        <!-- Altitude -->
+        <div class="telem-item">
+          <span class="telem-label">Altitude</span>
+          <div class="telem-bar-wrap" role="progressbar" aria-valuenow="142" aria-valuemin="0" aria-valuemax="500">
+            <div class="telem-bar" id="bar-altitude" style="width:28%"></div>
+          </div>
+          <span class="telem-value"><span id="val-altitude">142</span><span class="telem-unit">m</span></span>
+        </div>
+
+        <div class="telem-divider"></div>
+
+        <!-- Mission Status -->
+        <div class="telem-item">
+          <span class="telem-label">Mission Status</span>
+          <div id="mission-status" class="mission-status">STANDBY</div>
+        </div>
+
+        <div class="telem-divider"></div>
+
+        <!-- Security badges -->
+        <div class="crypto-badges">
+          <span class="crypto-badge">AES-256 ACTIVE</span>
+          <span class="crypto-badge">RSA-2048 ACTIVE</span>
+          <span class="crypto-badge">BCRYPT AUTH</span>
+          <span class="crypto-badge">SESSION SECURE</span>
+        </div>
+
+      </div>
+    </aside>
+
+
+    <!-- ==================================================================
+         BOTTOM — Command Log
+         ================================================================== -->
+    <section class="hud-panel log-panel" aria-label="Command Log" aria-live="polite">
+      <div class="panel-header">
+        <div class="panel-header-dot" aria-hidden="true"></div>
+        <span class="panel-header-label">Command Audit Log</span>
+      </div>
+      <div id="command-log" role="log" aria-label="Command execution history"></div>
+    </section>
+
+  </main><!-- /.hud-main -->
+
+  <!-- JS -->
+  <script src="{{ url_for('static', filename='js/hud_animation.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/command_console.js') }}"></script>
+
+</body>
+</html>
