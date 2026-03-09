@@ -1,0 +1,113 @@
+# ===============================
+# Python Cache
+# ===============================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ===============================
+# C Extensions
+# ===============================
+*.so
+
+# ===============================
+# Virtual Environments
+# ===============================
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Gesture service virtual environment
+gesture_service/venv/
+
+# ===============================
+# Environment Variables
+# ===============================
+.env
+.env.*
+
+# ===============================
+# Python Packaging
+# ===============================
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ===============================
+# Logs
+# ===============================
+*.log
+logs/
+
+# ===============================
+# Databases
+# ===============================
+*.db
+*.sqlite3
+
+# ===============================
+# Testing / Coverage
+# ===============================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.pytest_cache/
+
+# ===============================
+# Jupyter
+# ===============================
+.ipynb_checkpoints
+
+# ===============================
+# IDE / Editor Files
+# ===============================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===============================
+# OS Files
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Biometric Data (IMPORTANT)
+# ===============================
+face_database/
+
+# ===============================
+# Model Files (Optional)
+# ===============================
+*.h5
+*.pt
+*.pth
+*.onnx
+
+# ===============================
+# Temporary Files
+# ===============================
+*.tmp
+*.temp
