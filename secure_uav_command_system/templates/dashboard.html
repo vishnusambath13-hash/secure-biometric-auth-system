@@ -256,6 +256,32 @@
   <!-- JS -->
   <script src="{{ url_for('static', filename='js/hud_animation.js') }}"></script>
   <script src="{{ url_for('static', filename='js/command_console.js') }}"></script>
+<div id="voice-overlay" class="voice-overlay hidden">
 
+  <div class="voice-container">
+
+    <div class="voice-title">VOICE AUTHORIZATION</div>
+
+    <div id="voice-phrase" class="voice-phrase"></div>
+
+    <!-- Waveform -->
+    <div class="waveform" id="waveform">
+      <!-- 40 bars -->
+      <div></div><div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div><div></div>
+    </div>
+
+    <div id="voice-status" class="voice-status listening">
+      LISTENING...
+    </div>
+
+  </div>
+</div>
 </body>
 </html>

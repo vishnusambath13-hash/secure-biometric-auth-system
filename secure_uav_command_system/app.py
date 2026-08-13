@@ -120,21 +120,39 @@ def _run_secure_pipeline(command_name: str, operator: str, source: str):
 
     if source == "keyboard":
 
-        logger.info("[SECURITY] Voice authorization required for command execution.")
+        import random
 
-        if not verify_operator_voice():
+        phrases = [
+            "mission authorization granted",
+            "secure command confirmed",
+            "operator access verified"
+        ]
 
-            logger.warning(
-                "[SECURITY] Voice authorization failed for operator '%s'.",
-                operator
-            )
+        # 🔥 STEP 1: check if already authorized
+        voice_verified = request.json.get("voice_verified", False)
+
+        if not voice_verified:
+
+            phrase = random.choice(phrases)
+
+            # store phrase in session
+            session["voice_phrase"] = phrase
 
             return {
-                "status": "denied",
-                "result": "Voice authorization failed."
+                "status": "voice_required",
+                "phrase": phrase
+            }, 401
+
+        # 🔥 STEP 2: actual verification
+        phrase = session.get("voice_phrase")
+
+        if not phrase or not verify_operator_voice(phrase):
+            return {
+            "status": "error",
+            "result": "Voice authorization failed."
             }, 403
 
-        logger.info("[SECURITY] Voice authorization passed.")
+        logger.info("[VOICE] Authorization passed.")
 
     # ── 1. COMMAND WHITELIST ───────────────────────────────────────────────
     if command_name not in COMMAND_MAP:
@@ -176,10 +194,31 @@ def _run_secure_pipeline(command_name: str, operator: str, source: str):
             "result": "Signature verification failed."
         }, 403
 
-    # ── 4. EXECUTE COMMAND ─────────────────────────────────────────────────
+        # ── 4. EXECUTE COMMAND ─────────────────────────────────────────────────
     try:
 
         result = execute_command(command_name)
+
+        # ── 4.5. SEND COMMAND TO AIRSIM ───────────────────────────────────────
+        AIRSIM_MAP = {
+            "deploy_drone": "takeoff",
+            "start_recon": "forward",
+            "return_base": "return",
+            "abort_mission": "hover",
+            "system_status": "status"
+        }
+
+        mapped = AIRSIM_MAP.get(command_name)
+
+        if mapped:
+            try:
+                with open("D:/UAV_STACK/commands.txt", "w") as f:
+                    f.write(mapped)
+
+                logger.info("[AIRSIM] Command sent: %s → %s", command_name, mapped)
+
+            except Exception as exc:
+                logger.warning("[AIRSIM] Failed to write command file: %s", exc)
 
     except Exception as exc:
 
@@ -188,7 +227,7 @@ def _run_secure_pipeline(command_name: str, operator: str, source: str):
         return {
             "status": "error",
             "result": "Command execution failed."
-        }, 500
+        }, 500  
 
     # ── 5. LOG COMMAND ─────────────────────────────────────────────────────
     try:

@@ -142,7 +142,7 @@ def _open_camera() -> cv2.VideoCapture | None:
     Returns:
         cv2.VideoCapture on success, None on failure.
     """
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     if not cap.isOpened():
         logger.error(

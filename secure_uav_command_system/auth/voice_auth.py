@@ -33,17 +33,13 @@ _LANGUAGE            = "en-US"
 # Public API
 # =============================================================================
 
-def verify_operator_voice() -> bool:
+def verify_operator_voice(expected_phrase:str) -> bool:
 
     print("\n[VOICE AUTH] Voice verification started.")
 
     # ── 1. Random challenge phrase ──────────────────────────────────────────
-    expected_phrase = random.choice(CHALLENGE_PHRASES)
-
-    print(
-        f'[VOICE AUTH] Speak the following phrase:\n'
-        f'             >> {expected_phrase.upper()} <<\n'
-    )
+    print(f"\n[VOICE AUTH] Say the phrase: {expected_phrase}")
+    logger.info("Voice challenge received from app: '%s'.", expected_phrase)
 
     logger.info("Voice challenge issued: '%s'.", expected_phrase)
 

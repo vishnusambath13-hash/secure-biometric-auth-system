@@ -7,7 +7,7 @@
 # =============================================================================
 
 import os
-import base64
+import base64  
 import logging
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes

@@ -140,35 +140,84 @@
     setFeedbackLoading(cmdName);
 
     try {
-      const response = await fetch(EXECUTE_URL, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ command: cmdName }),
-      });
+        let payload = { command: cmdName };
 
-      const data = await response.json();
+        let response = await fetch(EXECUTE_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
 
-      if (response.ok && data.status === "success") {
-        const msg = `[${data.command.toUpperCase()}] ${data.result}`;
-        setFeedback(msg, "success");
-        appendLog(nowTs(), data.operator || "OPERATOR", data.command, data.result);
-        updateMissionStatus(data.command);
-        // Brief flash on button
-        if (btnEl) {
-          btnEl.classList.add("btn-flash");
-          setTimeout(() => btnEl.classList.remove("btn-flash"), 600);
+        let data = await response.json();
+
+        // 🔥 VOICE CHALLENGE HANDLING
+        if (response.status === 401 && data.status === "voice_required") {
+
+            const phrase = data.phrase;
+
+            const overlay  = document.getElementById("voice-overlay");
+            const phraseEl = document.getElementById("voice-phrase");
+            const statusEl = document.getElementById("voice-status");
+
+            phraseEl.innerText = `"${phrase.toUpperCase()}"`;
+            statusEl.innerText = "LISTENING...";
+            statusEl.className = "voice-status listening";
+
+            overlay.classList.remove("hidden");
+
+            // 🔥 SECOND REQUEST → triggers mic on backend
+            response = await fetch(EXECUTE_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    command: cmdName,
+                    voice_verified: true
+                }),
+            });
+
+            data = await response.json();
         }
-      } else {
-        const errMsg = data.result || "Command authorization failed.";
-        setFeedback(`[ERROR] ${errMsg}`, "error");
-        appendLog(nowTs(), "SYSTEM", cmdName, "AUTHORIZATION FAILED");
-      }
+
+        // ✅ SUCCESS
+        if (response.ok && data.status === "success") {
+            const msg = `[${data.command.toUpperCase()}] ${data.result}`;
+            setFeedback(msg, "success");
+            const statusEl = document.getElementById("voice-status");
+
+            statusEl.innerText = "✔ AUTHORIZATION CONFIRMED";
+            statusEl.className = "voice-status success";
+
+            setTimeout(() => {
+                document.getElementById("voice-overlay").classList.add("hidden");
+            }, 1200);
+            appendLog(nowTs(), data.operator || "OPERATOR", data.command, data.result);
+            updateMissionStatus(data.command);
+
+            if (btnEl) {
+                btnEl.classList.add("btn-flash");
+                setTimeout(() => btnEl.classList.remove("btn-flash"), 600);
+            }
+
+        } else {
+            const errMsg = data.result || "Command authorization failed.";
+            setFeedback(`[ERROR] ${errMsg}`, "error");
+            const statusEl = document.getElementById("voice-status");
+
+            statusEl.innerText = "✖ AUTHORIZATION FAILED";
+            statusEl.className = "voice-status error";
+
+            setTimeout(() => {
+                document.getElementById("voice-overlay").classList.add("hidden");
+            }, 1500);
+            appendLog(nowTs(), "SYSTEM", cmdName, "AUTHORIZATION FAILED");
+        }
+
     } catch (err) {
-      setFeedback("[NETWORK ERROR] Could not reach command server.", "error");
-      console.error("Command execution error:", err);
+        setFeedback("[NETWORK ERROR] Could not reach command server.", "error");
+        console.error("Command execution error:", err);
+
     } finally {
-      // Re-enable buttons
-      allBtns.forEach((b) => (b.disabled = false));
+        allBtns.forEach((b) => (b.disabled = false));
     }
   }
 

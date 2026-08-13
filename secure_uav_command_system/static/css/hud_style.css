@@ -994,3 +994,94 @@ html, body {
 
 /* ── Utility ── */
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ===== VOICE OVERLAY ===== */
+.voice-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 10, 15, 0.92);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+}
+
+.voice-overlay.hidden {
+  display: none;
+}
+
+.voice-container {
+  text-align: center;
+  border: 1px solid rgba(0,255,200,0.2);
+  padding: 30px 40px;
+  background: rgba(0, 20, 30, 0.6);
+  box-shadow: 0 0 25px rgba(0,255,200,0.08);
+}
+
+.voice-title {
+  color: #00e0c6; /* matches your cyan HUD */
+  letter-spacing: 3px;
+  font-size: 14px;
+}
+
+.voice-phrase {
+  margin-top: 12px;
+  font-size: 20px;
+  color: #e6f7ff;
+}
+
+/* ===== WAVEFORM ===== */
+.waveform {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 3px;
+  height: 60px;
+  margin: 20px 0;
+}
+
+.waveform div {
+  width: 3px;
+  background: linear-gradient(to top, #00e0c6, #00ffa6);
+  animation: wave 1.2s infinite ease-in-out;
+}
+
+.waveform div:nth-child(odd) {
+  animation-duration: 1s;
+}
+
+.waveform div:nth-child(even) {
+  animation-duration: 1.4s;
+}
+
+@keyframes wave {
+  0%,100% { height: 10px; opacity: 0.3; }
+  50%     { height: 55px; opacity: 1; }
+}
+
+/* ===== STATUS ===== */
+.voice-status {
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.voice-status.listening {
+  color: #00ffa6;
+}
+
+.voice-status.success {
+  color: #38ffb3; /* softer green, fits HUD */
+}
+
+.voice-status.error {
+  color: #ff5c5c; /* muted red, not neon */
+}
+.voice-container {
+  animation: flicker 2s infinite alternate;
+}
+
+@keyframes flicker {
+  from { opacity: 0.95; }
+  to   { opacity: 1; }
+}
